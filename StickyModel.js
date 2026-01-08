@@ -6,6 +6,7 @@ const stickyMessageSchema = new mongoose.Schema({
     msgCount: { type: Number, default: 0 },
     messageId: { type: String, default: null },
     useWebhook: { type: Boolean, default: false },
+    useEmbed: { type: Boolean, default: true },
     webhookId: { type: String, default: null },
     webhookToken: { type: String, default: null },
     webhookName: { type: String, default: null },

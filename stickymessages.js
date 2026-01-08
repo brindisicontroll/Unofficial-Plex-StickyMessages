@@ -148,9 +148,10 @@ module.exports.register = ({ on, client }) => {
                     } else {
                         const messages = await message.channel.messages.fetch();
                         messages.forEach(async (msg) => {
+                            const isEmbed = stickyMessage.useEmbed !== undefined ? stickyMessage.useEmbed : (config.EnableEmbeds !== undefined ? config.EnableEmbeds : true);
                             if (
-                                (!config.EnableEmbeds && msg.content && msg.content.includes(stickyMessage.message)) ||
-                                (config.EnableEmbeds && msg.embeds && msg.embeds.some(embed => embed.description && embed.description.includes(stickyMessage.message)))
+                                (!isEmbed && msg.content && msg.content.includes(stickyMessage.message)) ||
+                                (isEmbed && msg.embeds && msg.embeds.some(embed => embed.description && embed.description.includes(stickyMessage.message)))
                             ) {
                                 await msg.delete().catch(() => {});
                             }
@@ -172,10 +173,11 @@ module.exports.register = ({ on, client }) => {
                     if (config.EmbedSettings.Embed.Timestamp) embed.setTimestamp();
 
                     let sentMessage;
+                    const isEmbed = stickyMessage.useEmbed !== undefined ? stickyMessage.useEmbed : (config.EnableEmbeds !== undefined ? config.EnableEmbeds : true);
                     if (stickyMessage.useWebhook && stickyMessage.webhookId && stickyMessage.webhookToken) {
                         try {
                             const hookClient = new Discord.WebhookClient({ id: stickyMessage.webhookId, token: stickyMessage.webhookToken });
-                            if (config.EnableEmbeds) {
+                            if (isEmbed) {
                                 const res = await hookClient.send({ embeds: [embed] });
                                 sentMessage = Array.isArray(res) ? res[0] : res;
                             } else {
@@ -183,14 +185,14 @@ module.exports.register = ({ on, client }) => {
                                 sentMessage = Array.isArray(res) ? res[0] : res;
                             }
                         } catch {
-                            if (config.EnableEmbeds) {
+                            if (isEmbed) {
                                 sentMessage = await message.channel.send({ embeds: [embed] });
                             } else {
                                 sentMessage = await message.channel.send({ content: `${config.StickiedMessageTitle}\n\n${stickyMessage.message}` });
                             }
                         }
                     } else {
-                        if (config.EnableEmbeds) {
+                        if (isEmbed) {
                             sentMessage = await message.channel.send({ embeds: [embed] });
                         } else {
                             sentMessage = await message.channel.send({ content: `${config.StickiedMessageTitle}\n\n${stickyMessage.message}` });

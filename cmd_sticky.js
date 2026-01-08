@@ -15,6 +15,7 @@ module.exports = {
         .setDescription('Create a sticky message in this channel')
         .addStringOption(option => option.setName('msg').setDescription('Sticky message').setRequired(true))
         .addBooleanOption(option => option.setName('webhook').setDescription('Invia tramite Webhook').setRequired(false))
+        .addBooleanOption(option => option.setName('embed').setDescription('Invia come embed (True) o testo (False)').setRequired(false))
     )
     .addSubcommand(subcommand =>
       subcommand.setName('delete').setDescription('Delete the sticky message in this channel')
@@ -43,6 +44,10 @@ module.exports = {
       }
       let useWebhookOpt = interaction.options.getBoolean('webhook');
       let useWebhook = typeof useWebhookOpt === 'boolean' ? useWebhookOpt : !!(config.Webhooks && config.Webhooks.EnabledByDefault);
+
+      let useEmbedOpt = interaction.options.getBoolean('embed');
+      let useEmbed = typeof useEmbedOpt === 'boolean' ? useEmbedOpt : (config.EnableEmbeds !== undefined ? config.EnableEmbeds : true);
+
       if (useWebhook && !interaction.member.permissions.has('ManageWebhooks')) {
         return interaction.reply({ content: `You need Manage Webhooks permission to create sticky via webhook.`, ephemeral: true });
       }
@@ -68,7 +73,7 @@ module.exports = {
         });
         try {
           const hookClient = new Discord.WebhookClient({ id: createdHook.id, token: createdHook.token });
-          if(config.EnableEmbeds === true) {
+          if(useEmbed === true) {
             sentMessage = await hookClient.send({ embeds: [embed] });
           } else {
             sentMessage = await hookClient.send({ content: `${config.StickiedMessageTitle}\n\n${msg}` });
@@ -79,8 +84,8 @@ module.exports = {
         }
       }
       if (!sentMessage) {
-        if(config.EnableEmbeds === false) sentMessage = await interaction.channel.send(`${config.StickiedMessageTitle}\n\n${msg}`)
-        if(config.EnableEmbeds === true) sentMessage = await interaction.channel.send({ embeds: [embed] })
+        if(useEmbed === false) sentMessage = await interaction.channel.send(`${config.StickiedMessageTitle}\n\n${msg}`)
+        if(useEmbed === true) sentMessage = await interaction.channel.send({ embeds: [embed] })
       }
 
       await StickyMessage.create({
@@ -89,6 +94,7 @@ module.exports = {
         msgCount: 0,
         messageId: sentMessage?.id || null,
         useWebhook,
+        useEmbed,
         webhookId: webhookData.webhookId,
         webhookToken: webhookData.webhookToken,
         webhookName: webhookData.webhookName,
@@ -146,6 +152,7 @@ module.exports = {
               { name: 'Channel', value: channel.name, inline: true },
               { name: 'Message', value: stickyMessage.message, inline: true },
               { name: 'Webhook', value: stickyMessage.useWebhook ? 'Yes' : 'No', inline: true },
+              { name: 'Type', value: stickyMessage.useEmbed ? 'Embed' : 'Text', inline: true },
             );
           } else {
             await StickyMessage.findOneAndDelete({ channelId: stickyMessage.channelId });
