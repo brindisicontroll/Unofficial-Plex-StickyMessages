@@ -137,11 +137,13 @@ module.exports.register = ({ on, client }) => {
 
         if (stickyMessage) {
             await StickyMessageModel.findByIdAndUpdate(stickyMessage._id, { $inc: { msgCount: 1 } });
+            stickyMessage.msgCount += 1;
 
             if (!cooldowns.has(message.channel.id) || cooldowns.get(message.channel.id) <= Date.now()) {
                 cooldowns.set(message.channel.id, Date.now() + 1 * 1000);
 
-                if (stickyMessage.msgCount >= config.MaxMessages) {
+                const maxMessages = stickyMessage.customMaxMessages || config.MaxMessages;
+                if (stickyMessage.msgCount >= maxMessages) {
                     if (stickyMessage.messageId) {
                         const oldMsg = await message.channel.messages.fetch(stickyMessage.messageId).catch(() => null);
                         if (oldMsg) await oldMsg.delete().catch(() => {});

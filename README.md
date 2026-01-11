@@ -1,6 +1,6 @@
 # Unofficial Plex StickyMessages
 
-An advanced Discord addon that keeps messages "sticky" at the bottom of the channel. Ideal for announcements, rules, or important information that must always remain visible to users.
+This is a modified version of StickyMessages made by `brindisicontroll.comeback`, originally sent by `Swqpping` on 20/08/2025. This is not an official release.
 
 ## 🚀 Main Features
 
@@ -37,6 +37,7 @@ Sets a new sticky message in the channel where the command is typed.
     *   `msg` (Required): The message text. Use `\n` for line breaks.
     *   `webhook` (Optional): `True` to send via webhook, `False` to use the standard bot.
     *   `embed` (Optional): `True` to use an embed, `False` for plain text.
+    *   `count` (Optional): Custom message count interval. If not set, the default from `config.yml` is used.
 
 ### `/sticky delete`
 Removes the active sticky message in the current channel and stops the resending cycle.

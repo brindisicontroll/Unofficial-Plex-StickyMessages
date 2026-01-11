@@ -13,9 +13,10 @@ module.exports = {
       subcommand
         .setName('create')
         .setDescription('Create a sticky message in this channel')
-        .addStringOption(option => option.setName('msg').setDescription('Sticky message').setRequired(true))
+        .addIntegerOption(option => option.setName('count').setDescription('Messages count interval (default: config value)').setRequired(false))
         .addBooleanOption(option => option.setName('webhook').setDescription('Invia tramite Webhook').setRequired(false))
         .addBooleanOption(option => option.setName('embed').setDescription('Invia come embed (True) o testo (False)').setRequired(false))
+        .addStringOption(option => option.setName('msg').setDescription('Sticky message').setRequired(false))
     )
     .addSubcommand(subcommand =>
       subcommand.setName('delete').setDescription('Delete the sticky message in this channel')
@@ -39,6 +40,8 @@ module.exports = {
         });
 
       let msg = interaction.options.getString('msg');
+      let count = interaction.options.getInteger('count');
+
       if (typeof msg === 'string') {
         msg = msg.replace(/\\n/g, '\n');
       }
@@ -92,6 +95,7 @@ module.exports = {
         channelId: interaction.channel.id,
         message: msg,
         msgCount: 0,
+        customMaxMessages: count,
         messageId: sentMessage?.id || null,
         useWebhook,
         useEmbed,

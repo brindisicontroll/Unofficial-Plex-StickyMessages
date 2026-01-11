@@ -4,6 +4,7 @@ const stickyMessageSchema = new mongoose.Schema({
     channelId: { type: String, required: true, unique: true },
     message: { type: String, required: true },
     msgCount: { type: Number, default: 0 },
+    customMaxMessages: { type: Number, default: null },
     messageId: { type: String, default: null },
     useWebhook: { type: Boolean, default: false },
     useEmbed: { type: Boolean, default: true },
